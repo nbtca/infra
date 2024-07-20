@@ -1,6 +1,28 @@
 # This file is maintained automatically by "terraform init".
 # Manual edits may be lost in future updates.
 
+provider "registry.terraform.io/aucloud/swarm" {
+  version     = "1.2.0"
+  constraints = "1.2.0"
+  hashes = [
+    "h1:9uxrbAbQBlsu5xunjYVy7VEAdKRTMFEzKn3FVIlePUA=",
+    "zh:0089c22c763a127289fcaf1d531eb64e1cd075df0b62309bf96ced03b80b1217",
+    "zh:4453dc88eb423807bc492989e76cb026a3c4d81c416b1f71d44c7d1c9818f67a",
+    "zh:495edd6fee3c28cc90e082d5ee2ac7efc7d6639649033b679be3713e4e07e1ab",
+    "zh:4b43f83a837dd1fbaca9fc259f85fd0741d7e3d2e1acf3068b8ab95e14a202ce",
+    "zh:56104e6c17fa994b6819f7a76b300beafcf0a396a9084a8e7ff493cf4f471206",
+    "zh:6269b692fe13fa73489ba18acef75e61b36c07b363778ba3f8c926acbc6fe5b0",
+    "zh:71193193dac6c44260c6f900e8e27aba23585606407116202533d8932ec8ee22",
+    "zh:785811a33c648fc4e85f231f3a1f640945e6bf73d58df7d4b3fce64b9121af69",
+    "zh:787da8e55f996b01e13aea6a0f6e77666852d3c6f035e4a855a268d6f2c72a5a",
+    "zh:940b634dbf81ed15e8dd9397051562cb8d4056050adb46806969d1141c461c99",
+    "zh:b7381e1fb0add5385283f78897be45d0c99cf7ebe2976356de5ddce69f38a316",
+    "zh:c5f5f57ff19d8ae44cf3d9f5a008941dc1e7ec8c54b0a5d60001005e7db5956d",
+    "zh:cc189b05722cfbc8e3b2ed71e1620a8bf41dbc6a81364753d82659c8453e4328",
+    "zh:f3c04689ff4106f4552f5285f33c838a705136d77758312c6a5c6f90bd4f8cc7",
+  ]
+}
+
 provider "registry.terraform.io/kreuzwerker/docker" {
   version     = "3.0.2"
   constraints = "3.0.2"
