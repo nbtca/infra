@@ -1,13 +1,19 @@
-variable "docker_host" {
-  default = "ssh://sgp"
-  type    = string
-}
-
-
 variable "cf_dns_api_token" {
   description = "API token for Cloudflare DNS"
   type        = string
   sensitive   = true
+}
+
+variable "ssh_user" {
+  description = "SSH user"
+  type        = string
+  default     = "terraform"
+}
+
+variable "ssh_key" {
+  description = "SSH private key path"
+  type        = string
+  default     = "$HOME/.ssh/terraform_rsa"
 }
 
 variable "cluster" {

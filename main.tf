@@ -4,18 +4,36 @@ terraform {
       source  = "kreuzwerker/docker"
       version = "3.0.2"
     }
+    swarm = {
+      source  = "aucloud/swarm"
+      version = "1.2"
+    }
   }
+}
+
+provider "swarm" {
+  ssh_user = var.ssh_user
+  ssh_key  = var.ssh_key
+}
+
+locals {
+  // find the first manager node
+  roles = {
+    for node in var.cluster : node.tags.role => node
+  }
+  manager     = local.roles["manager"]
+  docker_host = "ssh://${var.ssh_user}@${local.manager.public_address}"
+}
+
+provider "docker" {
+  host     = local.docker_host
+  ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", var.ssh_key]
 }
 
 module "swarm" {
   source = "./module/swarm"
+  nodes  = var.cluster
 }
-
-provider "docker" {
-  host     = var.docker_host
-  ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
-}
-
 
 module "log" {
   source             = "./module/log"

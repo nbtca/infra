@@ -10,7 +10,6 @@ terraform {
     }
   }
 }
-
 variable "nodes" {
   description = "List of nodes"
   type = list(
@@ -23,10 +22,7 @@ variable "nodes" {
   )
 }
 
-provider "swarm" {
-  ssh_user = var.terraform_ssh_user
-  ssh_key  = var.terraform_ssh_key
-}
+
 
 resource "swarm_cluster" "cluster" {
   skip_manager_validation = true
