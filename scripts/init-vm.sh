@@ -3,6 +3,12 @@
 # For Ubuntu VM:
 # Install docker and create an user named terraform
 
+# input ssh key for terraform user
+if [ -z "$1" ]; then
+  echo "Please provide the public key for the terraform user."
+  exit 1
+fi
+
 # Add Docker's official GPG key:# Add 163 mirror's GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl
@@ -13,8 +19,8 @@ sudo chmod a+r /etc/apt/keyrings/docker-163.asc
 # Add the repository to Apt sources:
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker-163.asc] https://mirrors.163.com/docker-ce/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker-163.list > /dev/null
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |
+  sudo tee /etc/apt/sources.list.d/docker-163.list >/dev/null
 sudo apt-get update
 
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -27,7 +33,7 @@ sudo systemctl enable containerd.service
 # Add or ensure the terraform user can use SSH
 # Step 1: Create the user if it doesn't exist
 if ! id "terraform" &>/dev/null; then
-    sudo useradd -m -s /bin/bash terraform
+  sudo useradd -m -s /bin/bash terraform
 fi
 sudo usermod -aG docker terraform
 
@@ -43,6 +49,9 @@ sudo chmod 600 /home/terraform/.ssh/authorized_keys
 
 # Step 5: Change ownership of the .ssh directory and its contents to the terraform user
 sudo chown -R terraform:terraform /home/terraform/.ssh
+
+# Step 6: Add the public key to the authorized_keys file
+echo "$1" | sudo tee -a /home/terraform/.ssh/authorized_keys
 
 # Note: You'll need to add the public key to /home/terraform/.ssh/authorized_keys manually
 # Example: sudo echo 'ssh-rsa AAA...' >> /home/terraform/.ssh/authorized_keys
