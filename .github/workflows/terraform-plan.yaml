@@ -28,11 +28,12 @@ jobs:
         env:
           PG_CONN_STR: ${{ secrets.PG_CONN_STR }}
 
-      - name: Setup ssh key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ${{ env.SSH_PRIVATE_KEY_PATH }}
-          chmod 600 ~/.ssh/id_rsa
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          name: id_rsa # optional
+          known_hosts: "github.com" 
 
       - name: Terraform Plan
         run: |
