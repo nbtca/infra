@@ -11,8 +11,12 @@ variable "traefik_network_id" {
   type = string
 }
 
+variable "host_name_base" {
+  type = string
+}
+
 locals {
-  service_name   = "log"
+  service_name = "log"
 }
 
 resource "docker_service" "log" {
@@ -26,7 +30,7 @@ resource "docker_service" "log" {
 
   labels {
     label = "traefik.http.routers.${local.service_name}.rule"
-    value = "Host(`log.swarm.nbtca.space`)"
+    value = "Host(`log.${var.host_name_base}`)"
   }
   labels {
     label = "traefik.http.routers.${local.service_name}.tls"

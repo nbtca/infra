@@ -1,4 +1,13 @@
 terraform {
+
+  cloud {
+    organization = "nbtca"
+
+    workspaces {
+      tags = ["infra:dev"]
+    }
+  }
+
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
@@ -36,17 +45,34 @@ module "swarm" {
 }
 
 module "log" {
-  source             = "./module/log"
+  source = "./module/log"
+
   traefik_network_id = module.swarm.network_traefik_public_id
-  depends_on         = [module.swarm]
+  host_name_base     = var.host_name_base
+
+  depends_on = [module.swarm]
 }
 
 module "router" {
   source = "./module/router"
   traefik_network = {
-    name = module.swarm.network_traefik_public_id
-    id   = module.swarm.network_traefik_public_name
+    name = module.swarm.network_traefik_public_name
+    id   = module.swarm.network_traefik_public_id
   }
+
   cf_dns_api_token = var.cf_dns_api_token
-  depends_on       = [module.swarm]
+  host_name_base   = var.host_name_base
+
+  depends_on = [module.swarm]
+}
+
+# TODO loop over docker nodes
+module "dockge" {
+  source = "./module/dockge"
+
+  traefik_network_id = module.swarm.network_traefik_public_id
+  host_name_base     = var.host_name_base
+  ssh_user           = var.ssh_user
+
+  depends_on = [module.swarm]
 }

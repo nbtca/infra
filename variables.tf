@@ -1,3 +1,8 @@
+variable "host_name_base" {
+  description = "Base hostname"
+  type        = string
+}
+
 variable "cf_dns_api_token" {
   description = "API token for Cloudflare DNS"
   type        = string

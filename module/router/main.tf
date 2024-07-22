@@ -7,16 +7,6 @@ terraform {
   }
 }
 
-variable "traefik_network" {
-  type = object({
-    name = string
-    id   = string
-  })
-}
-variable "cf_dns_api_token" {
-  type = string
-}
-
 locals {
   service_name = "traefik"
   tls_resolver = "myresolver"
@@ -40,7 +30,7 @@ resource "docker_service" "traefik" {
 
   labels {
     label = "traefik.http.routers.${local.service_name}.rule"
-    value = "Host(`traefik.swarm.nbtca.space`)"
+    value = "Host(`traefik.${var.host_name_base}`)"
   }
   labels {
     label = "traefik.http.routers.${local.service_name}.tls"
@@ -57,7 +47,7 @@ resource "docker_service" "traefik" {
 
   task_spec {
     container_spec {
-      image = "traefik:v2.11"
+      image = "traefik:v3.1"
 
       env = {
         CF_DNS_API_TOKEN = var.cf_dns_api_token
@@ -68,7 +58,7 @@ resource "docker_service" "traefik" {
         "--api.insecure=true",
         "--providers.docker=true",
         "--providers.docker.exposedbydefault=false",
-        "--providers.docker.swarmmode",
+        "--providers.swarm.endpoint=unix:///var/run/docker.sock",
         "--entryPoints.web.address=:80",
         "--entryPoints.websecure.address=:443",
         "--entryPoints.web.http.redirections.entryPoint.to=websecure",
@@ -126,7 +116,7 @@ resource "docker_service" "whoami" {
   }
   labels {
     label = "traefik.http.routers.whoami.rule"
-    value = "Host(`whoami.swarm.nbtca.space`)"
+    value = "Host(`whoami.${var.host_name_base}`)"
   }
   labels {
     label = "traefik.http.routers.whoami.tls"
@@ -161,4 +151,46 @@ resource "docker_service" "whoami" {
     global = true
   }
 
+}
+
+resource "docker_service" "speed_test" {
+  name = "speed_test"
+
+  labels {
+    label = "traefik.enable"
+    value = "true"
+  }
+  labels {
+    label = "traefik.http.routers.speed_test.rule"
+    value = "Host(`speed_test.${var.host_name_base}`)"
+  }
+  labels {
+    label = "traefik.http.routers.speed_test.tls"
+    value = "true"
+  }
+  labels {
+    label = "traefik.http.routers.speed_test.tls.certresolver"
+    value = local.tls_resolver
+  }
+  labels {
+    label = "traefik.http.services.speed_test.loadbalancer.server.port"
+    value = "80"
+  }
+
+  task_spec {
+    container_spec {
+      image = "badapple9/speedtest-x"
+      env = {
+        TZ = "America/New_York"
+      }
+    }
+
+    networks_advanced {
+      name = var.traefik_network.id
+    }
+  }
+
+  mode {
+    global = true
+  }
 }
