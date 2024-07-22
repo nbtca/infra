@@ -1,7 +1,9 @@
 name: "Terraform Plan"
 
 on:
-  pull_request:
+  push:
+    branches:
+      - main
 
 env:
   SSH_PRIVATE_KEY_PATH: "/home/runner/.ssh/id_rsa"
