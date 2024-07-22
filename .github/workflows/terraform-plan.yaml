@@ -40,7 +40,7 @@ jobs:
         env:
           PG_CONN_STR: ${{ secrets.PG_CONN_STR }}
           SSH_PRIVATE_KEY_PATH: ${{ env.SSH_PRIVATE_KEY_PATH }}
-          TF_VAR_cluster: ${{ secrets.CLUSTER }}
+          TF_VAR_cluster: ${{ vars.CLUSTER }}
           TF_VAR_host_name_base: ${{ secrets.HOST_NAME_BASE }}
           TF_VAR_cf_dns_api_token: ${{ secrets.CF_DNS_API_TOKEN }}
           TF_VAR_ssh_key: ${{ env.SSH_PRIVATE_KEY_PATH }}
