@@ -1,45 +1,57 @@
-name: "Terraform Apply"
+name: "Terraform Plan"
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
 
 env:
-  TF_CLOUD_ORGANIZATION: "nbtca"
-  TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  TF_WORKSPACE: "infra"
-  CONFIG_DIRECTORY: "./"
+  SSH_PRIVATE_KEY_PATH: "/home/runner/.ssh/id_rsa"
 
 jobs:
   terraform:
-    if: github.repository != 'hashicorp-education/learn-terraform-github-actions'
-    name: "Terraform Apply"
+    name: "Terraform Plan"
     runs-on: ubuntu-latest
+    environment: dev
     permissions:
       contents: read
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Upload Configuration
-        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
-        id: apply-upload
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          directory: ${{ env.CONFIG_DIRECTORY }}
+          terraform_wrapper: false
 
-      - name: Create Apply Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-        id: apply-run
-        with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
+      - name: Terraform Init
+        run: terraform init -input=false
+        env:
+          PG_CONN_STR: ${{ secrets.PG_CONN_STR }}
 
-      - name: Apply
-        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
-        if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable
-        id: apply
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
         with:
-          run: ${{ steps.apply-run.outputs.run_id }}
-          comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
+          key: ${{ secrets.SSH_KEY }}
+          name: id_rsa # optional
+          known_hosts: unnecessary 
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -input=false -out=tfplan
+        env:
+          PG_CONN_STR: ${{ secrets.PG_CONN_STR }}
+          SSH_PRIVATE_KEY_PATH: ${{ env.SSH_PRIVATE_KEY_PATH }}
+          TF_VAR_cluster: ${{ vars.CLUSTER }}
+          TF_VAR_host_name_base: ${{ vars.HOST_NAME_BASE }}
+          TF_VAR_cf_dns_api_token: ${{ secrets.CF_DNS_API_TOKEN }}
+          TF_VAR_ssh_key: ${{ env.SSH_PRIVATE_KEY_PATH }}
+      - name: Terraform Apply
+        run: |
+          terraform apply -input=false tfplan
+        env:
+          PG_CONN_STR: ${{ secrets.PG_CONN_STR }}
+          SSH_PRIVATE_KEY_PATH: ${{ env.SSH_PRIVATE_KEY_PATH }}
+          TF_VAR_cluster: ${{ vars.CLUSTER }}
+          TF_VAR_host_name_base: ${{ vars.HOST_NAME_BASE }}
+          TF_VAR_cf_dns_api_token: ${{ secrets.CF_DNS_API_TOKEN }}
+          TF_VAR_ssh_key: ${{ env.SSH_PRIVATE_KEY_PATH }}
