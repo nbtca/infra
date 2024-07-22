@@ -33,7 +33,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
       - name: Terraform Plan
-        run: terraform plan -var="cluster=${{vars.CLUSTER}}" -var="host_name_base=${{vars.HOST_NAME_BASE}}" -var="cf_dns_api_token=${{secrets.CF_DNS_API_TOKEN}}" -var="ssh_key=${{env.SSH_PRIVATE_KEY_PATH}}" -input=false -out=tfplan
+        run: |
+         export TF_VAR_cluster=${{ secrets.PG_CONN_STR }}
+         terraform plan -var="cluster=${{vars.CLUSTER}}" -var="host_name_base=${{vars.HOST_NAME_BASE}}" -var="cf_dns_api_token=${{secrets.CF_DNS_API_TOKEN}}" -var="ssh_key=${{env.SSH_PRIVATE_KEY_PATH}}" -input=false -out=tfplan
         env:
           PG_CONN_STR: ${{ secrets.PG_CONN_STR }}
           SSH_PRIVATE_KEY_PATH: ${{ env.SSH_PRIVATE_KEY_PATH }}
