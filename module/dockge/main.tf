@@ -10,7 +10,6 @@ terraform {
 locals {
   service_name = "dockge"
   mount_path   = "/home/${var.ssh_user}/dockge"
-  docker_host  = "ssh://${var.ssh_user}@${var.public_address}"
 }
 
 

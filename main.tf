@@ -1,12 +1,6 @@
 terraform {
-
-  cloud {
-    organization = "nbtca"
-
-    workspaces {
-      tags = ["infra:dev"]
-    }
-  }
+  # $ export PG_CONN_STR=postgres://user:pass@db.example.com/terraform_backend
+  backend "pg" {}
 
   required_providers {
     docker = {
