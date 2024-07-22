@@ -27,7 +27,6 @@ jobs:
         run: terraform init -input=false
         env:
           PG_CONN_STR: ${{ secrets.PG_CONN_STR }}
-          SSH_PRIVATE_KEY_PATH: ${{ env.SSH_PRIVATE_KEY_PATH }}
 
       - name: Setup ssh key
         run: |
@@ -35,17 +34,14 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ${{ env.SSH_PRIVATE_KEY_PATH }}
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Test
-        env:
-          TEST_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TEST_SECRET: ${{ secrets.TEST_SECRET }}
-        run: |
-          echo ${#TEST_GITHUB_TOKEN}
-          echo ${#TEST_SECRET}
-
       - name: Terraform Plan
         run: |
-          terraform plan -var="cluster=${{vars.CLUSTER}}" -var="host_name_base=${{vars.HOST_NAME_BASE}}" -var="cf_dns_api_token=${{secrets.CF_DNS_API_TOKEN}}" -var="ssh_key=${{env.SSH_PRIVATE_KEY_PATH}}" -input=false -out=tfplan
+          terraform plan -input=false -out=tfplan
         env:
           PG_CONN_STR: ${{ secrets.PG_CONN_STR }}
           SSH_PRIVATE_KEY_PATH: ${{ env.SSH_PRIVATE_KEY_PATH }}
+          TF_VAR_cluster: ${{ secrets.CLUSTER }}
+          TF_VAR_host_name_base: ${{ secrets.HOST_NAME_BASE }}
+          TF_VAR_cf_dns_api_token: ${{ secrets.CF_DNS_API_TOKEN }}
+          TF_VAR_ssh_key: ${{ env.SSH_PRIVATE_KEY_PATH }}
+
