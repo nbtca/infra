@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  SSH_PRIVATE_KEY_PATH: "$HOME/.ssh/terraform_rsa"
+  SSH_PRIVATE_KEY_PATH: "/home/runner/.ssh/terraform_rsa"
 
 jobs:
   terraform:
